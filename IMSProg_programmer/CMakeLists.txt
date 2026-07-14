@@ -152,7 +152,7 @@ endif()
 
 add_custom_target(translations DEPENDS ${QM_FILES})
 
-add_executable(${PROJECT_NAME}
+add_executable(${PROJECT_NAME} MACOSX_BUNDLE
     qhexedit2/src/chunks.cpp
     qhexedit2/src/color_manager.cpp
     qhexedit2/src/commands.cpp
@@ -261,3 +261,40 @@ install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/other/index.html" DESTINATION "${CMAK
 install(DIRECTORY "${PROJECT_ROOT}/img/"
         DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/doc/imsprog/html")
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/other/io.github.bigbigmdm.imsprog.metainfo.xml" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/metainfo")
+
+if(APPLE)
+  set(ICON_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/../img/logo_IMSProg.svg")
+  set(ICON_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/AppIcon.icns")
+  set(ICONSET_DIR "${CMAKE_CURRENT_BINARY_DIR}/AppIcon.iconset")
+
+  add_custom_command(
+    OUTPUT "${ICON_OUTPUT}"
+    DEPENDS "${ICON_SOURCE}"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${ICONSET_DIR}"
+    COMMAND sips -z 16 16 -s format png "${ICON_SOURCE}" --out "${ICONSET_DIR}/icon_16x16.png"
+    COMMAND sips -z 32 32 -s format png "${ICON_SOURCE}" --out "${ICONSET_DIR}/icon_16x16@2x.png"
+    COMMAND sips -z 32 32 -s format png "${ICON_SOURCE}" --out "${ICONSET_DIR}/icon_32x32.png"
+    COMMAND sips -z 64 64 -s format png "${ICON_SOURCE}" --out "${ICONSET_DIR}/icon_32x32@2x.png"
+    COMMAND sips -z 128 128 -s format png "${ICON_SOURCE}" --out "${ICONSET_DIR}/icon_128x128.png"
+    COMMAND sips -z 256 256 -s format png "${ICON_SOURCE}" --out "${ICONSET_DIR}/icon_128x128@2x.png"
+    COMMAND sips -z 256 256 -s format png "${ICON_SOURCE}" --out "${ICONSET_DIR}/icon_256x256.png"
+    COMMAND sips -z 512 512 -s format png "${ICON_SOURCE}" --out "${ICONSET_DIR}/icon_256x256@2x.png"
+    COMMAND iconutil -c icns "${ICONSET_DIR}" -o "${ICON_OUTPUT}"
+    COMMAND ${CMAKE_COMMAND} -E rm -rf "${ICONSET_DIR}"
+  )
+
+  target_sources(${PROJECT_NAME} PRIVATE "${ICON_OUTPUT}")
+  set_source_files_properties("${ICON_OUTPUT}" PROPERTIES
+    MACOSX_PACKAGE_LOCATION "Resources"
+    GENERATED TRUE
+  )
+
+  set_target_properties(${PROJECT_NAME} PROPERTIES
+      MACOSX_BUNDLE_BUNDLE_VERSION "0.2-10"
+      MACOSX_BUNDLE_SHORT_VERSION_STRING "0.2"
+      MACOSX_BUDNLE_ICON_FILE "AppIcon.icns"
+      MACOSX_BUNDLE_GUI_IDENTIFIER "io.github.bigbigmdm.imsprog"
+      MACOSX_BUNDLE_NAME "IMSProg"
+      MACOSX_BUNDLE_COPYRIGHT "Copyright © 2023 - 2026 Mikhail Medvedev"
+  )
+endif(APPLE)

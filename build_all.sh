@@ -33,4 +33,4 @@ cmake --install build/
 rm -rf build/
 )
 # Reloading the USB rules or creating the app bundles for macOS
-[[ "$OSTYPE" != "darwin"* ]] && udevadm control --reload-rules || ./create_macos_appbundles.sh
+[[ "$OSTYPE" != "darwin"* ]] && udevadm control --reload-rules
